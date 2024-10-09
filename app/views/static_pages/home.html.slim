@@ -1,0 +1,44 @@
+.container
+  h1 Unit Converter
+  .nav
+    a href="#" class="active" Length
+    a href="#" Weight
+    a href="#" Temperature
+  = form_with url: convert_path, method: :post, remote: true, data: { role: "convert-form" }, class: "convert-form" do |f|
+    .form-group
+      label Enter the length to convert
+      = f.text_field :original_length, class: "form-control"
+    .form-group
+      label Unit to Convert from
+      = select_tag "original_unit", options_for_select(@length_unit_options)
+    .form-group
+      label Unit to Convert to
+      = select_tag "converted_unit", options_for_select(@length_unit_options)
+    .form-group
+      = button_tag type: :submit data: { role: "submit" }: do 
+        | Convert
+  .result.result--hidden data-role="result"
+    p Result:
+    span data-role="converted-value"
+    br
+    = button_tag "Clear", type: :button, onClick: "operateForm()"
+
+
+javascript: 
+
+  // submitを謳歌するとstatic_pages/convertアクションにリクエストを送信する
+  document.querySelector('[data-role="submit"]').addEventListener('click', function() {
+    $.ajax({
+      url: '/static_pages/convert',
+      type: 'POST',
+      data: {
+        original_length: document.querySelector('[name="original_length"]').value,
+        original_unit: document.querySelector('[name="original_unit"]').value,
+        converted_unit: document.querySelector('[name="converted_unit"]').value
+      },
+      success: function(data) {
+        document.querySelector('[data-role="converted-value"]').textContent = data.converted_value;
+        document.querySelector('[data-role="result"]').classList.remove('result--hidden');
+      }
+    });
+  });
